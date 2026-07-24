@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Lemon</title>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; margin: 0; color: #333; }
+        header { background: #495e57; color: #f4ce14; padding: 16px 32px; }
+        header span { font-size: 20px; font-weight: bold; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        h1 { color: #495e57; }
+        code { background: #eee; padding: 2px 6px; border-radius: 4px; }
+        ul { line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <header>
+        <span>&#127819; Little Lemon</span>
+    </header>
+    <div class="container">
+        <h1>Welcome to Little Lemon</h1>
+        <p>This page is served by Django. The REST API for this project is available under the following paths:</p>
+        <ul>
+            <li><code>/api/menu/</code> &mdash; browsable API for menu items</li>
+            <li><code>/api/bookings/</code> &mdash; browsable API for table bookings (requires authentication)</li>
+            <li><code>/api-token-auth/</code> &mdash; obtain a DRF auth token</li>
+            <li><code>/auth/users/</code> &mdash; djoser: register a new user</li>
+            <li><code>/auth/token/login/</code> &mdash; djoser: obtain an auth token</li>
+            <li><code>/admin/</code> &mdash; Django admin</li>
+        </ul>
+    </div>
+</body>
+</html>
