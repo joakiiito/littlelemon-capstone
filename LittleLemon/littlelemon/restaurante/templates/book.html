@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Little Lemon - Book{% endblock %}
+{% block content %}
+<h1>Make a reservation</h1>
+
+<label for="first_name">Name</label>
+<input type="text" id="first_name" name="first_name" placeholder="Your name">
+
+<label for="reservation_date">Booking date</label>
+<input type="date" id="reservation_date" name="reservation_date">
+
+<label for="reservation_slot">Booking slot</label>
+<select id="reservation_slot" name="reservation_slot">
+</select>
+
+<button id="button">Reserve</button>
+
+<h2>Bookings for the selected date</h2>
+<div id="bookings"></div>
+
+<script>
+    // ----- Auto-select the current date when the form opens -----
+    const dateInput = document.getElementById('reservation_date');
+    const slotSelect = document.getElementById('reservation_slot');
+    const bookingsDiv = document.getElementById('bookings');
+
+    function todayStr() {
+        const d = new Date();
+        const off = d.getTimezoneOffset();
+        const local = new Date(d.getTime() - off * 60 * 1000);
+        return local.toISOString().split('T')[0];
+    }
+    dateInput.value = todayStr();
+
+    // Slots from 10:00 to 20:00
+    function buildSlots() {
+        slotSelect.innerHTML = '';
+        for (let h = 10; h <= 20; h++) {
+            const opt = document.createElement('option');
+            opt.value = h;
+            opt.textContent = h + ':00';
+            slotSelect.appendChild(opt);
+        }
+    }
+    buildSlots();
+
+    // ----- Use the fetch API to retrieve bookings for a date -----
+    function getBookings() {
+        buildSlots();
+        bookingsDiv.innerHTML = '';
+        fetch('/bookings/?date=' + dateInput.value)
+            .then(r => r.json())
+            .then(data => {
+                if (data.length === 0) {
+                    bookingsDiv.innerHTML = '<p>No bookings for that date.</p>';
+                }
+                const bookedSlots = [];
+                data.forEach(item => {
+                    const f = item.fields;
+                    bookedSlots.push(String(f.reservation_slot));
+                    const row = document.createElement('div');
+                    row.textContent = f.first_name + ' — ' + f.reservation_slot + ':00';
+                    bookingsDiv.appendChild(row);
+                });
+                // Gray out (disable) slots that are already booked
+                Array.from(slotSelect.options).forEach(opt => {
+                    if (bookedSlots.includes(opt.value)) {
+                        opt.disabled = true;
+                        opt.textContent = opt.value + ':00 (booked)';
+                    }
+                });
+            });
+    }
+
+    // ----- Changing the date updates the booking data -----
+    dateInput.addEventListener('change', getBookings);
+
+    // ----- POST a new booking, preventing duplicates -----
+    document.getElementById('button').addEventListener('click', () => {
+        const payload = {
+            first_name: document.getElementById('first_name').value,
+            reservation_date: dateInput.value,
+            reservation_slot: slotSelect.value
+        };
+        fetch('/bookings/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error === 1) {
+                alert('That slot is already booked for this date. Please choose another.');
+            }
+            getBookings();
+        });
+    });
+
+    // Initial load for today
+    getBookings();
+</script>
+{% endblock %}
